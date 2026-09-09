@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Protocol
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -81,28 +81,28 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/api/v1/incidents", response_model=Incident, status_code=201)
     def create_incident(
         incident: Incident,
-        service: IncidentService = Depends(get_service),
+        request: Request,
     ) -> Incident:
-        return service.create(incident)
+        return get_service(request).create(incident)
 
     @app.get("/api/v1/incidents", response_model=IncidentListResponse)
     def list_incidents(
+        request: Request,
         organization_id: str,
         limit: int = Query(default=50, ge=1, le=resolved.page_size_max),
         cursor: str | None = None,
-        service: IncidentService = Depends(get_service),
     ) -> IncidentListResponse:
-        page = service.list(organization_id, limit=limit, cursor=cursor)
+        page = get_service(request).list(organization_id, limit=limit, cursor=cursor)
         return IncidentListResponse(items=page.items, next_cursor=page.next_cursor)
 
     @app.get("/api/v1/incidents/{incident_id}", response_model=Incident)
     def get_incident(
         incident_id: UUID,
         organization_id: str,
-        service: IncidentService = Depends(get_service),
+        request: Request,
     ) -> Incident:
         try:
-            return service.get(organization_id, incident_id)
+            return get_service(request).get(organization_id, incident_id)
         except IncidentNotFound as exc:
             raise HTTPException(404, "incident not found") from exc
 
@@ -113,10 +113,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def get_timeline(
         incident_id: UUID,
         organization_id: str,
-        service: IncidentService = Depends(get_service),
+        request: Request,
     ) -> list[IncidentTransition]:
         try:
-            return service.timeline(organization_id, incident_id)
+            return get_service(request).timeline(organization_id, incident_id)
         except IncidentNotFound as exc:
             raise HTTPException(404, "incident not found") from exc
 
@@ -124,17 +124,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def move(
         incident_id: UUID,
         organization_id: str,
-        request: TransitionRequest,
-        service: IncidentService = Depends(get_service),
+        transition_request: TransitionRequest,
+        request: Request,
     ) -> Incident:
         try:
-            return service.move(
+            return get_service(request).move(
                 organization_id,
                 incident_id,
-                request.target,
-                actor=request.actor,
-                reason=request.reason,
-                expected_version=request.expected_version,
+                transition_request.target,
+                actor=transition_request.actor,
+                reason=transition_request.reason,
+                expected_version=transition_request.expected_version,
             )
         except IncidentNotFound as exc:
             raise HTTPException(404, "incident not found") from exc

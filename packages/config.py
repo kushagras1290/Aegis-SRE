@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     page_size_max: int = Field(default=100, ge=1, le=500)
 
     @model_validator(mode="after")
-    def production_safety(self) -> "Settings":
+    def production_safety(self) -> Settings:
         if self.env == "production" and self.incident_store == "memory":
             raise ValueError("production cannot use the in-memory incident store")
         return self

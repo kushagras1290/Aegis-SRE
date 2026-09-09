@@ -13,7 +13,7 @@ class TraceContext:
     organization_id: str | None = None
 
 
-_current: ContextVar[TraceContext] = ContextVar("aegis_trace_context", default=TraceContext())
+_current: ContextVar[TraceContext | None] = ContextVar("aegis_trace_context", default=None)
 
 
 def set_trace_context(context: TraceContext) -> None:
@@ -21,4 +21,4 @@ def set_trace_context(context: TraceContext) -> None:
 
 
 def get_trace_context() -> TraceContext:
-    return _current.get()
+    return _current.get() or TraceContext()

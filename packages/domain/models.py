@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 from pydantic import BaseModel, Field, field_validator
@@ -34,13 +34,13 @@ class Incident(BaseModel):
     status: IncidentStatus=IncidentStatus.DETECTED
     severity: Severity=Severity.SEV3
     primary_service: str|None=None
-    detected_at: datetime=Field(default_factory=lambda: datetime.now(timezone.utc))
+    detected_at: datetime=Field(default_factory=lambda: datetime.now(UTC))
     version: int=0
     @field_validator('detected_at')
     @classmethod
     def tz_required(cls,v:datetime)->datetime:
         if v.tzinfo is None: raise ValueError('detected_at must be timezone-aware')
-        return v.astimezone(timezone.utc)
+        return v.astimezone(UTC)
 
 class IncidentTransition(BaseModel):
     incident_id: UUID
@@ -48,4 +48,4 @@ class IncidentTransition(BaseModel):
     to_status: IncidentStatus
     actor: str
     reason: str
-    occurred_at: datetime=Field(default_factory=lambda: datetime.now(timezone.utc))
+    occurred_at: datetime=Field(default_factory=lambda: datetime.now(UTC))
