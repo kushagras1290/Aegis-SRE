@@ -19,7 +19,7 @@ from packages.domain.state_machine import InvalidIncidentTransition
 class IncidentService(Protocol):
     def create(self, incident: Incident) -> Incident: ...
     def get(self, organization_id: str, incident_id: UUID) -> Incident: ...
-    def list(
+    def list_incidents(
         self,
         organization_id: str,
         *,
@@ -92,7 +92,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         limit: int = Query(default=50, ge=1, le=resolved.page_size_max),
         cursor: str | None = None,
     ) -> IncidentListResponse:
-        page = get_service(request).list(organization_id, limit=limit, cursor=cursor)
+        page = get_service(request).list_incidents(organization_id, limit=limit, cursor=cursor)
         return IncidentListResponse(items=page.items, next_cursor=page.next_cursor)
 
     @app.get("/api/v1/incidents/{incident_id}", response_model=Incident)

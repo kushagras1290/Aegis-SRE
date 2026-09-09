@@ -26,7 +26,7 @@ class InMemoryIncidentService:
                 raise IncidentNotFound(str(incident_id))
             return incident.model_copy(deep=True)
 
-    def list(
+    def list_incidents(
         self,
         organization_id: str,
         *,
@@ -87,14 +87,14 @@ class SQLIncidentService:
     def get(self, organization_id: str, incident_id: UUID) -> Incident:
         return self._repository.get(organization_id, incident_id)
 
-    def list(
+    def list_incidents(
         self,
         organization_id: str,
         *,
         limit: int,
         cursor: str | None = None,
     ) -> IncidentPage:
-        return self._repository.list(organization_id, limit=limit, cursor=cursor)
+        return self._repository.list_incidents(organization_id, limit=limit, cursor=cursor)
 
     def move(
         self,

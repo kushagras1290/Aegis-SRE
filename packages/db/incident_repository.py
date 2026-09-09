@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Any, cast
 from uuid import UUID
 
 from sqlalchemy import Select, and_, select, update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session, sessionmaker
 
 from packages.db.models import IncidentRecord, IncidentTransitionRecord
@@ -80,7 +82,7 @@ class SQLIncidentRepository:
                 raise IncidentNotFound(str(incident_id))
             return _to_domain(row)
 
-    def list(
+    def list_incidents(
         self,
         organization_id: str,
         *,
@@ -110,16 +112,19 @@ class SQLIncidentRepository:
         if incident.version != expected_version + 1:
             raise ValueError("incident version must advance exactly once")
         with self._sessions.begin() as session:
-            result = session.execute(
-                update(IncidentRecord)
-                .where(
-                    and_(
-                        IncidentRecord.id == str(incident.id),
-                        IncidentRecord.organization_id == incident.organization_id,
-                        IncidentRecord.version == expected_version,
+            result = cast(
+                CursorResult[Any],
+                session.execute(
+                    update(IncidentRecord)
+                    .where(
+                        and_(
+                            IncidentRecord.id == str(incident.id),
+                            IncidentRecord.organization_id == incident.organization_id,
+                            IncidentRecord.version == expected_version,
+                        )
                     )
-                )
-                .values(status=incident.status.value, version=incident.version)
+                    .values(status=incident.status.value, version=incident.version)
+                ),
             )
             if result.rowcount != 1:
                 raise ConcurrencyConflict(str(incident.id))
