@@ -1,0 +1,18 @@
+syntax = "proto3";
+package aegis.detection.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message Anomaly {
+  string anomaly_id = 1;
+  string organization_id = 2;
+  string service_id = 3;
+  string signal = 4;
+  string algorithm = 5;
+  double score = 6;
+  double observed = 7;
+  double expected = 8;
+  double confidence = 9;
+  google.protobuf.Timestamp started_at = 10;
+  map<string, string> dimensions = 11;
+}

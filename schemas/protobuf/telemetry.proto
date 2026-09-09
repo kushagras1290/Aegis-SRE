@@ -1,0 +1,19 @@
+syntax = "proto3";
+package aegis.telemetry.v1;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+message EventEnvelope {
+  string event_id = 1;
+  string event_type = 2;
+  uint32 schema_version = 3;
+  google.protobuf.Timestamp occurred_at = 4;
+  google.protobuf.Timestamp ingested_at = 5;
+  string organization_id = 6;
+  string environment = 7;
+  string source = 8;
+  optional string trace_id = 9;
+  optional string correlation_id = 10;
+  google.protobuf.Struct payload = 11;
+}

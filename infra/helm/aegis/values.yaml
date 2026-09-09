@@ -1,0 +1,6 @@
+image:
+  repository: ghcr.io/kushagras1290/aegis-sre
+  tag: sha-placeholder
+resources:
+  requests: {cpu: 100m, memory: 128Mi}
+  limits: {memory: 512Mi}
