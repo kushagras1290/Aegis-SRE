@@ -15,6 +15,9 @@ verify:
 security:
 	python scripts/static_verify.py
 
+demo:
+	python scripts/demo.py
+
 verify-full: verify
 	docker compose config --quiet
 	opa test infra/opa

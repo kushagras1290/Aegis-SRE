@@ -9,6 +9,24 @@ FORBIDDEN = (
     "OPENAI_API_KEY=sk-",
     "KUBECONFIG=",
 )
+EXCLUDED_DIRS = frozenset(
+    {
+        ".git",
+        "docs",
+        ".venv",
+        "venv",
+        "node_modules",
+        ".next",
+        "dist",
+        "build",
+        "__pycache__",
+        ".pytest_cache",
+        ".mypy_cache",
+        ".ruff_cache",
+        "htmlcov",
+        ".egg-info",
+    }
+)
 
 
 def main() -> None:
@@ -16,8 +34,8 @@ def main() -> None:
     for path in ROOT.rglob("*"):
         if (
             not path.is_file()
-            or ".git" in path.parts
-            or "docs" in path.parts
+            or EXCLUDED_DIRS.intersection(path.parts)
+            or any(part.endswith(".egg-info") for part in path.parts)
             or path.name == "static_verify.py"
         ):
             continue

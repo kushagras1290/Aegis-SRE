@@ -1,6 +1,8 @@
 .venv/
 __pycache__/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .coverage
 htmlcov/
 .env
@@ -9,3 +11,13 @@ node_modules/
 dist/
 *.db
 .DS_Store
+*.egg-info/
+build/
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
